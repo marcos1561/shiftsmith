@@ -18,11 +18,11 @@
 # Installation
 Install the package with the following command
 ```bash
-pip install "git+https://github.com/marcos1561/shifsmith.git/#egg=shifsmith"
+pip install "git+https://github.com/marcos1561/shiftsmith.git/#egg=shiftsmith"
 ```
 To update the package, run
 ```bash
-pip install --upgrade "git+https://github.com/marcos1561/shifsmith.git/#egg=shifsmith"
+pip install --upgrade "git+https://github.com/marcos1561/shiftsmith.git/#egg=shiftsmith"
 ```
 
 # Quick Start
