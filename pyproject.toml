@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "shiftsmith"
+version = "0.0.1"
+authors = [
+  { name="Marcos Pasa", email="marcospasa130@gmail.com" },
+]
+description = "A Python package for generating shift schedules using Simulated Annealing metaheuristics."
+readme = "README.md"
+license = {file = "LICENSE"}
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+  "pandas",
+  "numpy",
+  "pulp",
+  "odfpy",
+  "google-auth",
+  "google-auth-oauthlib",
+  "google-api-python-client",
+  "matplotlib",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+exclude = ["tests*"]
