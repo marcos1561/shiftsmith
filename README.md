@@ -144,24 +144,24 @@ Here is the availability used in the example above (with fake names):
 
 | Start | End | Monday | Tuesday | Wednesday | Thursday | Friday |
 | --- | --- | --- | --- | --- | --- | --- |
-| 07:30 | 08:00 | Marcos, Cristiano, Henrique Hub,  | Grace, Dave, Judy, Alice | Grace, Alice, Frank, Ivan | Grace, Judy, Alice, Frank, Bob | Grace, Alice, Frank, Mallory, Ivan |
-| 08:00 | 08:30 | Marcos, Cristiano, Henrique Hub,  | Grace, Dave, Judy, Alice | Grace, Alice, Frank, Ivan, Carol | Grace, Judy, Alice, Frank, Bob, Carol | Grace, Alice, Frank, Mallory, Ivan |
-| 08:30 | 09:00 | Marcos, Cristiano, Henrique Hub,  | Dave, Judy, Alice, Bob | Grace, Alice, Frank, Ivan, Carol | Judy, Alice, Frank, Bob, Carol | Grace, Alice, Frank, Mallory, Ivan |
-| 09:00 | 09:30 | Marcos, Cristiano,  | Dave, Judy, Alice, Bob | Grace, Alice, Frank, Ivan, Carol | Judy, Alice, Frank, Bob, Carol | Grace, Alice, Frank, Mallory, Ivan |
-| 09:30 | 10:00 | Marcos, Cristiano,  | Oscar, Dave, Judy, Alice, Bob, Ivan | Grace, Alice, Frank, Ivan, Carol | Alice, Frank, Bob, Carol | Grace, Alice, Frank, Mallory, Ivan |
-| 10:00 | 10:30 | Marcos, Cristiano,  | Oscar, Dave, Judy, Alice, Bob, Ivan | Grace, Alice, Frank, Ivan, Carol | Alice, Frank, Bob, Carol | Grace, Alice, Frank, Mallory, Ivan |
-| 10:30 | 11:00 | Marcos, Cristiano,  | Oscar, Grace, Alice, Ivan | Grace, Alice, Frank, Ivan, Carol | Grace, Alice, Frank, Mallory, Ivan, Carol | Grace, Alice, Frank, Mallory, Ivan |
-| 11:00 | 11:30 | Marcos,  | Oscar, Alice, Ivan | Alice, Ivan, Carol | Alice, Frank, Mallory, Ivan, Carol | Grace, Alice, Frank, Mallory, Ivan |
-| 11:30 | 12:00 | Vinícius Baêta,  | Alice, Ivan | Alice, Ivan | Alice, Mallory, Ivan, Carol | Grace, Alice, Frank, Mallory, Ivan |
-| 12:00 | 12:30 | Cristiano, Eduarda B, Vinícius Baêta,  | Grace, Judy, Alice, Bob, Mallory, Ivan | Grace, Alice, Ivan | Grace, Alice, Bob, Mallory, Ivan | Grace, Alice, Frank, Mallory, Ivan |
-| 12:30 | 13:00 | Cristiano, Eduarda B, Vinícius Baêta,  | Grace, Alice, Mallory, Ivan | Grace, Alice, Frank, Ivan | Grace, Alice, Bob, Mallory, Ivan | Grace, Alice, Mallory, Ivan |
-| 13:00 | 13:30 | Cristiano, Eduarda B, Vinícius Baêta,  | Grace, Alice, Frank, Mallory, Ivan | Grace, Alice, Frank | Grace, Alice, Bob, Mallory, Ivan | Alice, Frank, Mallory, Ivan |
-| 13:30 | 14:00 | Cristiano, Eduarda B, Vinícius Baêta,  | Grace, Judy, Alice, Bob, Mallory, Ivan | Grace, Alice, Frank, Heidi | Grace, Alice, Bob, Mallory, Ivan | Alice, Frank, Mallory, Ivan |
-| 14:00 | 14:30 | Cristiano, Eduarda B, Vinícius Baêta,  | Grace, Judy, Alice, Bob, Mallory, Ivan | Grace, Alice, Frank, Heidi | Grace, Alice, Bob, Mallory, Ivan | Alice, Mallory, Ivan |
-| 14:30 | 15:00 | Cristiano, Eduarda B, Vinícius Baêta,  | Grace, Judy, Alice, Bob, Mallory, Ivan | Grace, Alice, Frank, Bob, Heidi | Grace, Alice, Bob, Mallory, Ivan | Alice, Mallory, Ivan |
-| 15:00 | 15:30 | Cristiano, Eduarda B, Vinícius Baêta,  | Grace, Judy, Bob, Ivan | Grace, Frank, Bob, Heidi | Grace, Bob, Mallory, Ivan | Mallory, Ivan |
-| 15:30 | 16:00 | Eduarda B, Vinícius Baêta,  | Grace, Ivan | Frank, Bob, Heidi | Grace, Bob, Mallory, Ivan | Mallory, Ivan |
-| 16:00 | 16:30 | Eduarda B, Vinícius Baêta,  | Ivan | Frank, Bob, Heidi | Grace, Bob, Mallory, Ivan | Grace, Mallory, Eve, Ivan |
+| 07:30 | 08:00 | Oscar, Grace, Dave | Grace, Dave, Judy, Alice | Grace, Alice, Frank, Ivan | Grace, Judy, Alice, Frank, Bob | Grace, Alice, Frank, Mallory, Ivan |
+| 08:00 | 08:30 | Oscar, Grace, Dave | Grace, Dave, Judy, Alice | Grace, Alice, Frank, Ivan, Carol | Grace, Judy, Alice, Frank, Bob, Carol | Grace, Alice, Frank, Mallory, Ivan |
+| 08:30 | 09:00 | Oscar, Grace, Dave | Dave, Judy, Alice, Bob | Grace, Alice, Frank, Ivan, Carol | Judy, Alice, Frank, Bob, Carol | Grace, Alice, Frank, Mallory, Ivan |
+| 09:00 | 09:30 | Oscar, Grace | Dave, Judy, Alice, Bob | Grace, Alice, Frank, Ivan, Carol | Judy, Alice, Frank, Bob, Carol | Grace, Alice, Frank, Mallory, Ivan |
+| 09:30 | 10:00 | Oscar, Grace | Oscar, Dave, Judy, Alice, Bob, Ivan | Grace, Alice, Frank, Ivan, Carol | Alice, Frank, Bob, Carol | Grace, Alice, Frank, Mallory, Ivan |
+| 10:00 | 10:30 | Oscar, Grace | Oscar, Dave, Judy, Alice, Bob, Ivan | Grace, Alice, Frank, Ivan, Carol | Alice, Frank, Bob, Carol | Grace, Alice, Frank, Mallory, Ivan |
+| 10:30 | 11:00 | Oscar, Grace | Oscar, Grace, Alice, Ivan | Grace, Alice, Frank, Ivan, Carol | Grace, Alice, Frank, Mallory, Ivan, Carol | Grace, Alice, Frank, Mallory, Ivan |
+| 11:00 | 11:30 | Oscar | Oscar, Alice, Ivan | Alice, Ivan, Carol | Alice, Frank, Mallory, Ivan, Carol | Grace, Alice, Frank, Mallory, Ivan |
+| 11:30 | 12:00 | Ivan | Alice, Ivan | Alice, Ivan | Alice, Mallory, Ivan, Carol | Grace, Alice, Frank, Mallory, Ivan |
+| 12:00 | 12:30 | Grace, Eduarda B, Ivan | Grace, Judy, Alice, Bob, Mallory, Ivan | Grace, Alice, Ivan | Grace, Alice, Bob, Mallory, Ivan | Grace, Alice, Frank, Mallory, Ivan |
+| 12:30 | 13:00 | Grace, Eduarda B, Ivan | Grace, Alice, Mallory, Ivan | Grace, Alice, Frank, Ivan | Grace, Alice, Bob, Mallory, Ivan | Grace, Alice, Mallory, Ivan |
+| 13:00 | 13:30 | Grace, Eduarda B, Ivan | Grace, Alice, Frank, Mallory, Ivan | Grace, Alice, Frank | Grace, Alice, Bob, Mallory, Ivan | Alice, Frank, Mallory, Ivan |
+| 13:30 | 14:00 | Grace, Eduarda B, Ivan | Grace, Judy, Alice, Bob, Mallory, Ivan | Grace, Alice, Frank, Heidi | Grace, Alice, Bob, Mallory, Ivan | Alice, Frank, Mallory, Ivan |
+| 14:00 | 14:30 | Grace, Eduarda B, Ivan | Grace, Judy, Alice, Bob, Mallory, Ivan | Grace, Alice, Frank, Heidi | Grace, Alice, Bob, Mallory, Ivan | Alice, Mallory, Ivan |
+| 14:30 | 15:00 | Grace, Eduarda B, Ivan | Grace, Judy, Alice, Bob, Mallory, Ivan | Grace, Alice, Frank, Bob, Heidi | Grace, Alice, Bob, Mallory, Ivan | Alice, Mallory, Ivan |
+| 15:00 | 15:30 | Grace, Eduarda B, Ivan | Grace, Judy, Bob, Ivan | Grace, Frank, Bob, Heidi | Grace, Bob, Mallory, Ivan | Mallory, Ivan |
+| 15:30 | 16:00 | Frank, Ivan | Grace, Ivan | Frank, Bob, Heidi | Grace, Bob, Mallory, Ivan | Mallory, Ivan |
+| 16:00 | 16:30 | Frank, Ivan | Ivan | Frank, Bob, Heidi | Grace, Bob, Mallory, Ivan | Grace, Mallory, Eve, Ivan |
 | 16:30 | 17:00 |  |  |  |  | Grace, Mallory, Eve, Ivan |
 
 ## Shift Capacity
