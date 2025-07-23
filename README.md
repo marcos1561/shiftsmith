@@ -167,7 +167,7 @@ Here is the availability used in the example above (with fake names):
 ## Shift Capacity
 Shift capacity is a table in the same format as the availability and preference, the only difference being that its cells should have integer numbers (how many workers should be in this specific shift). Here is an example:
 
-| Start | End | Segunda | Terça | Quarta | Quinta | Sexta |
+| Start | End | Monday | Tuesday | Wednesday | Thursday | Friday |
 | --- | --- | --- | --- | --- | --- | --- |
 | 07:30 | 08:00 | 3 | 3 | 3 | 3 | 3 |
 | 08:00 | 08:30 | 3 | 3 | 3 | 3 | 3 |
