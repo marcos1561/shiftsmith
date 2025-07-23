@@ -10,7 +10,7 @@
 - Fills every shift. Shifts capacities (how many workers should be in the shift) can be customized by the user.
 - Prioritizes heavy shifts, even if it means violating soft constraints (heavy shifts are specified by the user).
 - Ensures every worker receives a lunch break (lunch break shifts are specified by the user).
-- Distributes target workloads equally to each worker, calculated from total work time and individual availability, in such a way that the sum of all workers' workload is the total available work time and a worker workload is never greater than his total availability. Shifts can have different weights when calculating total work time.
+- Distributes workloads equally to each worker, calculated from total work time and individual availability, in such a way that the sum of all workers' target workload is the total available work time and a worker workload is never greater than his total availability. Shifts can have different weights when calculating total work time.
 - Assign compact shifts to each worker.
 
 `Shiftsmith` has a general system to load data that is in the form of tables (availability, preference, shifts capacities, etc). Currently, it supports .ods and .csv files, but the system can easily be expanded to support other file formats.
