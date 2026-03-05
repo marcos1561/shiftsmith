@@ -7,7 +7,7 @@ from collections import namedtuple
 import os
 
 from . import readers
-from .shifts import ShiftList
+from .shifts import ShiftList, Shift
 
 # Define a logger for this module
 logger = logging.getLogger(__name__)
@@ -20,7 +20,7 @@ Mappers = namedtuple('Mappers', [
 
 class Sheets:
     def __init__(self, 
-        pref_path: readers.FileInfo, avail_path: readers.FileInfo, target_work_load_path: readers.FileInfo, shift_capacity_path: readers.FileInfo):
+        pref_path: readers.FileInfo, avail_path: readers.FileInfo, target_work_load_info: readers.TargetWorkLoadInfo, shift_capacity_path: readers.FileInfo):
         '''
         Sheets with data to generate a schedule. Each path can be a string
         representing the file path or a `FileInfo` object when additional
@@ -46,7 +46,7 @@ class Sheets:
         '''
         self.pref, week_days1, shifts1 = readers.ScheduleReader.read(pref_path, True)
         self.avail, week_days2, shifts2 = readers.ScheduleReader.read(avail_path, True)
-        self.target_work_load = readers.TargetWorkLoadReader.read(target_work_load_path)
+        self.target_work_load = readers.TargetWorkLoadReader.read(target_work_load_info)
         self.shift_capacity = readers.ShiftCapacityReader.read(shift_capacity_path)
 
         if week_days1 != week_days2:
@@ -169,10 +169,13 @@ class SchedulerBase(ABC):
         people = list(self.sheets.avail.keys())
         people_work_num = dict(zip(people, np.zeros(len(people), dtype=float)))
         
+        some_shift = list(self.schedule[list(self.schedule.keys())[0]].keys())[0]
+        shift_duration_hours = Shift(some_shift).duration.seconds / (60 * 60)
+
         for d, day_sched in self.schedule.items():
             for t, shift_people in day_sched.items():
                 for p in shift_people:
-                    people_work_num[p] += self.shifts_weights.get((d, str(t)), 1)
+                    people_work_num[p] += self.shifts_weights.get((d, str(t)), 1) * Shift(t).duration.seconds / (60 * 60)
         
         total_work = []
         for p in people:
@@ -180,9 +183,9 @@ class SchedulerBase(ABC):
             if p not in target_work_load:
                 w_rel = None
             else:
-                w_rel = p_work / target_work_load[p]
+                w_rel = p_work / (target_work_load[p] * shift_duration_hours)
             
-            total_work.append([p, p_work/2, target_work_load[p]/2, w_rel])
+            total_work.append([p, p_work, target_work_load[p] * shift_duration_hours, w_rel])
 
         df = pd.DataFrame(total_work, columns=["People", "Given Workload (Hours)", "Requested Workload (Hours)", "Relative Workload"])
         df.to_csv(path, index=False)

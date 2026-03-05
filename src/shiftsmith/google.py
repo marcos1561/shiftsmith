@@ -28,6 +28,8 @@ class GoogleSaver:
         self.credentials_path = Path(credentials_path)
         self.sheet_info_arr = sheet_info_arr
 
+        self.save_path.mkdir(exist_ok=True, parents=True)
+
         self.creds = self.get_credentials()
 
     def get_credentials(self):

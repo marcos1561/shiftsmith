@@ -147,9 +147,14 @@ class ScheduleReader:
 
         return func(file_info, return_week_days_and_shifts=return_week_days_and_shifts)
 
+class TargetWorkLoadInfo:
+    def __init__(self, file_info: FileInfo, weight):
+        self.file_info = file_info
+        self.weight = weight
+
 class TargetWorkLoadReader:
     @staticmethod
-    def read_ods(info: OdsInfo):
+    def read_ods(info: OdsInfo, weight):
         path, sheet_name = info.path, info.sheet_name
 
         data = pd.read_excel(path, sheet_name=sheet_name, engine='odf')
@@ -157,18 +162,18 @@ class TargetWorkLoadReader:
         if sheet_name is None:
             data = list(data.values())[0]
 
-        return dict(zip(data.iloc[:, 0], data.iloc[:, 1] * 2))
+        return dict(zip([name.strip() for name in data.iloc[:, 0]], data.iloc[:, 1] * weight))
 
     @staticmethod
-    def read_csv(info: CsvInfo):
+    def read_csv(info: CsvInfo, weight):
         path = info.path
         data = pd.read_csv(path, delimiter=",")
 
-        return dict(zip(data.iloc[:, 0], data.iloc[:, 1] * 2))
+        return dict(zip([name.strip() for name in data.iloc[:, 0]], data.iloc[:, 1] * weight))
 
     @staticmethod
-    def read(file_info: FileInfo):
-        file_info = to_path_info(file_info)
+    def read(target_work_load_info: TargetWorkLoadInfo):
+        file_info = to_path_info(target_work_load_info.file_info)
         if isinstance(file_info, CsvInfo):
             func = TargetWorkLoadReader.read_csv
         elif isinstance(file_info, OdsInfo):
@@ -176,7 +181,7 @@ class TargetWorkLoadReader:
         else:
             raise ValueError(f"Unsupported file type: {file_info}")
 
-        return func(file_info)
+        return func(file_info, target_work_load_info.weight)
 
 class ShiftCapacityReader:
     @staticmethod
@@ -195,12 +200,28 @@ class ShiftCapacityReader:
         data.drop(data.columns[:2], axis=1, inplace=True)
 
         return data
+    
+    @staticmethod
+    def read_csv(info: OdsInfo):
+        path = info.path
+        data = pd.read_csv(path, delimiter=",")
+
+        data.index = [
+            str(Shift(f"{row.iloc[0]}-{row.iloc[1]}"))
+            for _, row in data.iterrows()
+        ]
+
+        data.drop(data.columns[:2], axis=1, inplace=True)
+
+        return data
 
     @staticmethod
     def read(file_info: FileInfo):
         file_info = to_path_info(file_info)
         if isinstance(file_info, OdsInfo):
             func = ShiftCapacityReader.read_ods
+        elif isinstance(file_info, CsvInfo):
+            func = ShiftCapacityReader.read_csv
         else:
             raise ValueError(f"Unsupported file type: {file_info}")
 

@@ -51,7 +51,7 @@ class TempConst(TempStrategy):
 
 class SystemParams:
     def __init__(self, k_disp, k_border, k_fix_people_gt, k_fix_people_sm, k_fix_people_sm_peak, k_lunch, k_continuos_lunch,
-        k_no_people, k_work_load, k_overflow_work_load, k_pref, temp_strat: TempStrategy | list[TempStrategy], lunch_min_free_shifts=2):
+        k_no_people, k_work_load, k_overflow_work_load, k_pref, love, hate, temp_strat: TempStrategy | list[TempStrategy], lunch_min_free_shifts=2):
         '''
         Parameters for the annealing schedule.
         
@@ -85,11 +85,17 @@ class SystemParams:
             Coefficient to distribute hours among people fairly.
 
         k_overflow_work_load: 
-            Coefficient to penalize when a people receives more shifts than asked.
+            Coefficient to penalize when people receives more shifts than asked.
 
         k_pref: 
             Coefficient for preferring hours in the preference.
         
+        love:
+            Coefficient favoring lovers to be together.
+        
+        hate:
+            Coefficient favoring enemies to not be together.
+
         temp_strat: 
             Temperature decay strategy. It can be a list of strategies, is this
             case every strategy is executed in order.
@@ -109,6 +115,8 @@ class SystemParams:
         self.k_overflow_work_load = k_overflow_work_load
         self.k_pref = k_pref
         self.lunch_min_free_shifts = lunch_min_free_shifts 
+        self.love = love
+        self.hate = hate
         self.temp_strat = temp_strat 
 
 
@@ -116,13 +124,15 @@ class ScheduleSystem:
     def __init__(self, 
         x: np.ndarray, pref: np.ndarray, disp: np.ndarray, target_work_load: np.ndarray,
         shift_capacity: np.ndarray, weights: np.ndarray, 
-        params: SystemParams, lunch_ids, peak_ids,
+        params: SystemParams, lunch_ids, peak_ids, enemies, lovers,
         ):
         self.pref = pref
         self.disp = disp
         self.params = params
         self.shift_capacity = shift_capacity
-        
+        self.enemies = enemies
+        self.lovers = lovers
+
         self.lunch_ids = lunch_ids
         self.peak_ids = peak_ids
         self.weights = weights
@@ -227,8 +237,32 @@ class ScheduleSystem:
         
         return lunch_energies.sum() + (~has_continuos_lunch).sum() * self.params.k_continuos_lunch
 
+    def enemies_lovers_energy(self):
+        num_enemies_encounters = 0
+        num_lovers_encounters = 0
+
+        # for t_id in range(self.x.shape[1]):
+        #     for d_id in range(self.x.shape[2]):
+        #         people = self.x[:, t_id, d_id]
+        #         for enemy_1, enemy_2 in self.enemies:
+        #             if people[enemy_1] == 1 and people[enemy_2] == 1:
+        #                 num_enemies_encounters += 1
+        #         for lover_1, lover_2 in self.lovers:
+        #             if people[lover_1] == 1 and people[lover_2] == 1:
+        #                 num_lovers_encounters += 1
+
+        if len(self.enemies) > 0:
+            both_present = self.x[self.enemies[:, 0]] * self.x[self.enemies[:, 1]]  # (E, T, D)
+            num_enemies_encounters = both_present.sum()
+
+        if len(self.lovers) > 0:
+            both_present = self.x[self.lovers[:, 0]] * self.x[self.lovers[:, 1]]  # (L, T, D)
+            num_lovers_encounters = both_present.sum()
+
+        return -num_lovers_encounters * self.params.love + num_enemies_encounters * self.params.hate 
+
     def energy(self):
-        return self.work_load_energy() + self.pref_energy() + self.disp_energy() + self.boarder_energy() + self.fix_people_energy() + self.lunch_energy()
+        return self.work_load_energy() + self.pref_energy() + self.disp_energy() + self.boarder_energy() + self.fix_people_energy() + self.lunch_energy() + self.enemies_lovers_energy()
     
     def run(self):
         strats: list[TempStrategy] = self.params.temp_strat
@@ -266,6 +300,7 @@ class ScheduleSystem:
         problems["lunch"] = self.launch_problem(mappers)
         problems["availability"] = self.disp_problem(mappers)
         problems["shift_capacity"] = self.number_people_problem(mappers)
+        problems["enemies"] = self.enemies_problem(mappers)
         return problems
 
     def launch_problem(self, mappers):
@@ -312,6 +347,21 @@ class ScheduleSystem:
                     info.append((d, t, int(count[t_id, d_id]), int(self.shift_capacity[t_id, d_id])))
         return pd.DataFrame(info, columns=["Day", "Shift", "Current", "Target"])
 
+    def enemies_problem(self, mappers):
+        info = []
+        if len(self.enemies) > 0:
+            # (E, T, D) - 1 where both enemies are present
+            both_present = self.x[self.enemies[:, 0]] * self.x[self.enemies[:, 1]]
+            enemy_indices = np.argwhere(both_present)  # (N, 3) -> [pair_idx, t_id, d_id]
+            for pair_idx, t_id, d_id in enemy_indices:
+                p1 = mappers.id_to_person[self.enemies[pair_idx, 0]]
+                p2 = mappers.id_to_person[self.enemies[pair_idx, 1]]
+                t = mappers.id_to_shift[t_id]
+                d = mappers.id_to_week_day[d_id]
+                info.append((p1, p2, d, t))
+        return pd.DataFrame(info, columns=["Enemy 1", "Enemy 2", "Day", "Shift"])
+
+
 def sheets_to_matrix(sheet, sheets: Sheets):
     num_people = len(sheets.people)
     num_work_shifts = len(sheets.shifts)
@@ -332,7 +382,9 @@ class AnnealingSched(SchedulerBase):
     def __init__(self, 
         sheets: Sheets, params: SystemParams, 
         lunch_shifts: ShiftList, peak_shifts: ShiftList, 
-        init_state: Literal["random", "linear_sched"]="random", shifts_weights: dict=None):
+        init_state: Literal["random", "linear_sched"]="random", 
+        lovers: list[tuple[str]]=None, enemies: list[tuple[str]]=None,
+        shifts_weights: dict=None):
         '''
         Scheduler based on the annealing algorithm.
 
@@ -355,6 +407,12 @@ class AnnealingSched(SchedulerBase):
             Init state used by the annealing algorithm.
             - "random": random state
             - "linear_sched": init state give by the linear scheduler.
+
+        lovers:
+            List of lovers. Each element should be a tuple with the lovers names.
+        
+        enemies:
+            List of enemies. Each element should be a tuple with the enemies names.
         
         shifts_weights:
             Shifts weight, a higher weight mean the shift count more hours than a shift with
@@ -369,8 +427,13 @@ class AnnealingSched(SchedulerBase):
         self.peak_ids = [self.sheets.mappers.shift_to_id[str(t)] for t in peak_shifts]
         self.init_state = init_state
 
+        self.lovers = lovers if lovers is not None else []
+        self.enemies = enemies if enemies is not None else []
+
         self.anneal_system: ScheduleSystem = None
         self.energy: np.ndarray = None
+
+        self.setup()
 
     def get_linear_scheduler(self):
         sched = LinearProgSched(
@@ -420,8 +483,13 @@ class AnnealingSched(SchedulerBase):
 
         return schedule
 
-    def generate(self):
-        if self.init_state == "linear_sched":
+    def set_x_mat(self, sched):
+        self.anneal_system.x = self.schedule_to_x_mat(sched)
+        self.schedule = self.x_mat_to_schedule(self.anneal_system.x)
+
+    def setup(self):
+        init_state = self.init_state
+        if init_state == "linear_sched":
             linear_sched = self.get_linear_scheduler()
             
             linear_sched.generate()
@@ -429,11 +497,11 @@ class AnnealingSched(SchedulerBase):
             # print(self.linear_sched.problems.availability)
             
             x_mat = self.schedule_to_x_mat(linear_sched.schedule)
-        elif self.init_state == "random":
+        elif init_state == "random":
             shape = (len(self.sheets.people), len(self.sheets.shifts), len(self.sheets.week_days))
             x_mat = np.random.randint(0, 2, size=shape, dtype=int)
-        elif isinstance(self.init_state, dict):
-            x_mat = self.schedule_to_x_mat(self.init_state)
+        elif isinstance(init_state, dict):
+            x_mat = self.schedule_to_x_mat(init_state)
         else:
             raise ValueError("Init State not valid! It should be a schedule (dict) or a valid string.")
 
@@ -447,22 +515,26 @@ class AnnealingSched(SchedulerBase):
         for t, row in self.sheets.shift_capacity.iterrows():
             for day, value in row.items():
                 shift_capacity_mat[mappers.shift_to_id[t], mappers.week_day_to_id[day]] = value
-
+        
         target_work_load_mat = np.full(x_mat.shape[0], None)
         for name, wl in self.sheets.target_work_load.items():
             target_work_load_mat[mappers.person_to_id[name]] = wl
-
+    
         shifts_wights_mat = np.ones_like(shift_capacity_mat)
         for (day, shift), w in self.shifts_weights.items():
             shifts_wights_mat[mappers.shift_to_id[str(shift)], mappers.week_day_to_id[day]] = w
 
+        enemies = np.array([[mappers.person_to_id[n1], mappers.person_to_id[n2]] for n1, n2 in self.enemies])
+        lovers = np.array([[mappers.person_to_id[n1], mappers.person_to_id[n2]] for n1, n2 in self.lovers])
+
         self.anneal_system = ScheduleSystem(
             x_mat, pref_mat, aval_mat, target_work_load_mat, 
             shift_capacity_mat, shifts_wights_mat, 
-            self.params, self.lunch_ids, self.peak_ids,
+            self.params, self.lunch_ids, self.peak_ids, enemies, lovers
         )
-        self.energy = self.anneal_system.run()
 
+    def generate(self):
+        self.energy = self.anneal_system.run()
         self.schedule = self.x_mat_to_schedule(self.anneal_system.x)
 
     def show_problems(self, path=None):
