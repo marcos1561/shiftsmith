@@ -1,6 +1,7 @@
 import pandas as pd
 import datetime
 from pathlib import Path
+import numpy as np
 
 from .shifts import Shift
 
@@ -149,10 +150,34 @@ class ScheduleReader:
 
 class TargetWorkLoadInfo:
     def __init__(self, file_info: FileInfo, weight):
+        '''
+        Parameters
+        ----------
+        file_info:
+            Path to the file.
+
+        weight:
+            This parameter will multiply every entry in the target workload
+            sheet, it's job is to make this sheet be consistent with the schedule
+            sheet, for instance, if the schedule sheet is made by turns with 30 minutos, while
+            the target workload sheet is given in hours, weight should be 2 (because one hour is
+            equivalent to 2 * 30 minutos).
+        '''
         self.file_info = file_info
         self.weight = weight
 
 class TargetWorkLoadReader:
+    @staticmethod
+    def process_asked_time(values):
+        asked_times = []
+        for v in values:
+            if type(v) is str:
+                v = float(v.strip().replace(",", "."))
+            
+            asked_times.append(v)
+
+        return np.array(asked_times)
+        
     @staticmethod
     def read_ods(info: OdsInfo, weight):
         path, sheet_name = info.path, info.sheet_name
@@ -162,14 +187,16 @@ class TargetWorkLoadReader:
         if sheet_name is None:
             data = list(data.values())[0]
 
-        return dict(zip([name.strip() for name in data.iloc[:, 0]], data.iloc[:, 1] * weight))
+        asked_times = TargetWorkLoadReader.process_asked_time(data.iloc[:, 1]) 
+        return dict(zip([name.strip() for name in data.iloc[:, 0]], asked_times * weight))
 
     @staticmethod
     def read_csv(info: CsvInfo, weight):
         path = info.path
         data = pd.read_csv(path, delimiter=",")
 
-        return dict(zip([name.strip() for name in data.iloc[:, 0]], data.iloc[:, 1] * weight))
+        asked_times = TargetWorkLoadReader.process_asked_time(data.iloc[:, 1]) 
+        return dict(zip([name.strip() for name in data.iloc[:, 0]], asked_times * weight))
 
     @staticmethod
     def read(target_work_load_info: TargetWorkLoadInfo):

@@ -38,8 +38,8 @@ class Sheets:
         avail_path:
             People availability file path.
         
-        target_work_load_path:
-            People desired work load file path.
+        target_work_load_info:
+            People desired work load info.
         
         shift_capacity_path:
             Target number of people per shift file path.
@@ -136,6 +136,15 @@ class SchedulerBase(ABC):
     @abstractmethod
     def generate(self):
         pass
+
+    def show_people_list(self, save_path=None):
+        people_list = list(self.sheets.avail.keys())
+        if save_path:
+            pd.DataFrame(people_list, columns=["Names"]).to_csv(save_path)
+        else:
+            print(people_list)
+
+        return people_list
     
     def add_missing_people(self, missing_name="MISSING"):
         for day in self.sheets.week_days:

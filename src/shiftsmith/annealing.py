@@ -12,6 +12,7 @@ from shiftsmith.shifts import ShiftList
 from .base import SchedulerBase, Sheets
 from .shifts import Shift
 from .linear_prog import LinearProgSched
+from .progress import ProgressCounter
 
 
 class TempStrategy(ABC):
@@ -270,7 +271,9 @@ class ScheduleSystem:
             strats = [strats]
 
         energy = [self.energy()]
-        for strat in strats:
+        for strat_id, strat in enumerate(strats):
+            print(f"Running Strategy {strat_id}")
+            prog = ProgressCounter(0, strat.num_steps-1)
             for i in range(strat.num_steps):
                 temp = strat.get_temp(i)
 
@@ -292,7 +295,12 @@ class ScheduleSystem:
                         self.x[idx] = 1 - self.x[idx]
 
                 energy.append(self.energy())
+                prog.increment()
+                prog.show()
+            print(f"Strategy {strat_id} Completed!")
+            print()
 
+        print("Done!\n")
         return energy
     
     def get_problems(self, mappers):
